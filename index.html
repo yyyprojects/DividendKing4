@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Understanding Dividend Kings</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Regal Harmony -->
+    <!-- Application Structure Plan: The SPA is structured as a narrative journey for a beginner investor. It starts with a simple definition (What?), introduces concrete examples (Who?), explains the advantages with an interactive compound growth chart (Why?), presents the risks with a sector distribution chart (What are the risks?), and concludes with a summary (Is it for me?). This thematic, top-down approach was chosen over a report-like structure to make the financial concept intuitive and engaging. User flow is guided by clear sections and interactive filtering/chart controls to encourage exploration and active learning. -->
+    <!-- Visualization & Content Choices: 1. Dividend Kings List -> Goal: Organize/Inform -> Viz: Interactive Filterable Cards -> Interaction: Click filters to see companies by sector -> Justification: Allows users to explore real-world examples in a structured way. 2. Investment Growth -> Goal: Change/Compare -> Viz: Line Chart (Chart.js) -> Interaction: Slider to adjust years, see compounding effect -> Justification: Visually demonstrates the core benefit of dividend reinvestment over time, making an abstract concept tangible. 3. Sector Breakdown -> Goal: Organize/Inform -> Viz: Doughnut Chart (Chart.js) -> Interaction: Hover to see sector details -> Justification: Clearly illustrates the concept of sector concentration risk, a key drawback of focusing solely on these stocks. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F7F4;
+            color: #1A202C;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .nav-link {
+            transition: color 0.3s, border-color 0.3s;
+        }
+        .nav-link:hover {
+            color: #C0A062;
+        }
+        .filter-btn.active {
+            background-color: #4A5568;
+            color: #FFFFFF;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-[#2D3748] text-white p-4 sticky top-0 z-50 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold tracking-tight">Dividend Kings Explained</h1>
+            <nav class="hidden md:flex space-x-6">
+                <a href="#definition" class="nav-link border-b-2 border-transparent hover:border-b-[#C0A062] pb-1">What is a King?</a>
+                <a href="#examples" class="nav-link border-b-2 border-transparent hover:border-b-[#C0A062] pb-1">Meet the Kings</a>
+                <a href="#benefits" class="nav-link border-b-2 border-transparent hover:border-b-[#C0A062] pb-1">The Benefits</a>
+                <a href="#risks" class="nav-link border-b-2 border-transparent hover:border-b-[#C0A062] pb-1">The Risks</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mx-auto p-4 md:p-8">
+
+        <section id="definition" class="text-center py-16 md:py-24">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-6xl mb-4" role="img" aria-label="crown icon">👑</div>
+                <h2 class="text-4xl md:text-6xl font-bold text-[#2D3748] mb-4">What is a Dividend King?</h2>
+                <p class="text-lg md:text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+                    Imagine a company that is so reliable and financially strong that it has not only paid its shareholders a small piece of its profits (a dividend) every year, but has also <span class="font-bold text-[#4A5568]">increased</span> that payment every single year for at least half a century. That's a Dividend King.
+                </p>
+                <div class="bg-white p-8 rounded-xl shadow-lg border border-gray-200 inline-block">
+                    <p class="text-2xl font-bold text-[#2D3748]">The Royal Decree:</p>
+                    <p class="text-5xl font-bold text-[#C0A062] my-2">50+ Years</p>
+                    <p class="text-xl text-gray-700">of consecutive annual dividend increases.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="examples" class="py-16 md:py-24 bg-white rounded-2xl shadow-lg border border-gray-200">
+            <div class="text-center max-w-4xl mx-auto mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-[#2D3748] mb-4">The Royal Court: Meet the Kings</h2>
+                <p class="text-lg text-gray-600">
+                    Dividend Kings are not mythical; they are some of the most well-known and durable companies in the world. They operate in various sectors, but all share a long history of stability and rewarding shareholders. Click the filters below to explore a few examples from this exclusive club.
+                </p>
+            </div>
+            <div class="flex flex-wrap justify-center gap-2 md:gap-4 mb-10 px-4">
+                <button class="filter-btn active py-2 px-4 bg-gray-200 text-gray-700 font-medium rounded-full transition-colors" data-sector="All">All Sectors</button>
+                <button class="filter-btn py-2 px-4 bg-gray-200 text-gray-700 font-medium rounded-full transition-colors" data-sector="Consumer Staples">Consumer Staples</button>
+                <button class="filter-btn py-2 px-4 bg-gray-200 text-gray-700 font-medium rounded-full transition-colors" data-sector="Industrials">Industrials</button>
+                <button class="filter-btn py-2 px-4 bg-gray-200 text-gray-700 font-medium rounded-full transition-colors" data-sector="Healthcare">Healthcare</button>
+                <button class="filter-btn py-2 px-4 bg-gray-200 text-gray-700 font-medium rounded-full transition-colors" data-sector="Utilities">Utilities</button>
+            </div>
+            <div id="kings-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 px-4 md:px-8">
+            </div>
+        </section>
+
+        <section id="benefits" class="py-16 md:py-24">
+            <div class="text-center max-w-4xl mx-auto mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-[#2D3748] mb-4">Why Seek the Kings? The Royal Benefits</h2>
+                <p class="text-lg text-gray-600">Investing in these companies offers several key advantages, especially for those looking for long-term stability and growing income rather than fast, risky growth. This section explores how their consistency can be a powerful tool for building wealth.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8 text-center mb-16">
+                <div class="bg-white p-6 rounded-lg shadow border">
+                    <h3 class="text-xl font-bold text-[#2D3748] mb-2">Reliable Income Stream</h3>
+                    <p class="text-gray-600">Their long history provides confidence that dividend payments will likely continue, offering a predictable source of income.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow border">
+                    <h3 class="text-xl font-bold text-[#2D3748] mb-2">Inflation Protection</h3>
+                    <p class="text-gray-600">Because the dividend amount increases each year, it helps your income keep pace with, or even beat, the rising cost of living.</p>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow border">
+                    <h3 class="text-xl font-bold text-[#2D3748] mb-2">Stability in Stormy Seas</h3>
+                    <p class="text-gray-600">These mature, established companies often perform better than the broader market during economic downturns, adding stability to a portfolio.</p>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 md:p-8 rounded-2xl shadow-lg border border-gray-200">
+                <h3 class="text-2xl font-bold text-[#2D3748] text-center mb-2">The Magic of Compounding</h3>
+                <p class="text-gray-600 text-center mb-6 max-w-3xl mx-auto">One of the most powerful benefits is compounding. By reinvesting the dividends you receive to buy more shares, your investment can grow exponentially over time. Use the slider below to see the potential difference this strategy can make for a hypothetical $10,000 investment with a 5% annual dividend and 8% annual stock growth.</p>
+                <div class="chart-container">
+                    <canvas id="compoundingChart"></canvas>
+                </div>
+                <div class="mt-8 text-center">
+                    <label for="yearsSlider" class="block font-medium text-lg mb-2">Investment Period: <span id="yearsValue" class="font-bold text-[#C0A062]">25</span> years</label>
+                    <input id="yearsSlider" type="range" min="1" max="50" value="25" class="w-full max-w-md mx-auto">
+                </div>
+            </div>
+        </section>
+
+        <section id="risks" class="py-16 md:py-24">
+            <div class="text-center max-w-4xl mx-auto mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold text-[#2D3748] mb-4">A King's Ransom? Understanding the Risks</h2>
+                <p class="text-lg text-gray-600">While Dividend Kings are stable, no investment is without risk. It's crucial to have a balanced perspective and understand the potential downsides before investing. These companies are a piece of the puzzle, not the entire picture.</p>
+            </div>
+             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div class="bg-white p-6 md:p-8 rounded-2xl shadow-lg border border-gray-200 h-full">
+                     <h3 class="text-2xl font-bold text-[#2D3748] text-center mb-4">Sector Concentration Risk</h3>
+                     <p class="text-gray-600 text-center mb-6">The list of Dividend Kings is not evenly spread across all parts of the economy. Many are concentrated in a few specific sectors. This chart shows a typical breakdown, highlighting the need for diversification to avoid having all your eggs in one basket.</p>
+                    <div class="chart-container" style="height: 300px; max-height: 350px;">
+                        <canvas id="sectorChart"></canvas>
+                    </div>
+                </div>
+                <div class="space-y-6">
+                    <div class="bg-white p-6 rounded-lg shadow border">
+                        <h3 class="text-xl font-bold text-[#2D3748] mb-2">Slower Growth Potential</h3>
+                        <p class="text-gray-600">These are large, mature companies. They are unlikely to experience the explosive growth of a smaller, newer tech company. Their focus is on stability, not rapid expansion.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow border">
+                        <h3 class="text-xl font-bold text-[#2D3748] mb-2">Interest Rate Sensitivity</h3>
+                        <p class="text-gray-600">When interest rates rise, safer investments like government bonds become more attractive. This can sometimes make dividend stocks less appealing to investors, potentially affecting their stock prices.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow border">
+                        <h3 class="text-xl font-bold text-[#2D3748] mb-2">Past Performance is Not a Guarantee</h3>
+                        <p class="text-gray-600">While a 50+ year track record is impressive, it doesn't guarantee future success. Unexpected business challenges could force any company to break its streak.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+    </main>
+
+    <footer class="bg-[#2D3748] text-white py-8">
+        <div class="container mx-auto text-center">
+            <h3 class="text-2xl font-bold mb-4">Is a Dividend King Right for Your Kingdom?</h3>
+            <p class="max-w-3xl mx-auto text-gray-300 mb-6">
+                Dividend Kings can be a cornerstone for a stable, income-focused, long-term investment strategy. They are best suited for investors who prioritize reliability and steady, growing income over the potential for high-risk, high-reward growth. Like any investment, they are most effective as part of a well-diversified portfolio tailored to your personal financial goals.
+            </p>
+            <p class="text-gray-400 text-sm">This information is for educational purposes only and not financial advice.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const dividendKingsData = [
+                { name: 'The Coca-Cola Co.', sector: 'Consumer Staples', years: 62, description: 'A global beverage corporation known for its iconic soft drinks, juices, and water brands.' },
+                { name: 'Procter & Gamble', sector: 'Consumer Staples', years: 68, description: 'A multinational consumer goods company specializing in a wide range of personal care and hygiene products.' },
+                { name: 'Johnson & Johnson', sector: 'Healthcare', years: 62, description: 'A global company that develops medical devices, pharmaceuticals, and consumer packaged goods.' },
+                { name: 'Colgate-Palmolive', sector: 'Consumer Staples', years: 61, description: 'A leading consumer products company focused on oral care, personal care, home care, and pet nutrition.' },
+                { name: 'Lowe\'s Companies', sector: 'Industrials', years: 61, description: 'A retail company specializing in home improvement products, including tools, appliances, and building supplies.' },
+                { name: '3M Company', sector: 'Industrials', years: 66, description: 'A diversified technology company with a global presence in industrial, safety, consumer goods, and healthcare markets.' },
+                { name: 'Genuine Parts Co.', sector: 'Industrials', years: 68, description: 'A distributor of automotive replacement parts, industrial replacement parts, and business products.' },
+                { name: 'American States Water', sector: 'Utilities', years: 69, description: 'A utility company that provides water and electricity services to communities in the United States.' },
+                { name: 'Dover Corporation', sector: 'Industrials', years: 68, description: 'A global manufacturer providing equipment and components, specialty systems, and support services.' },
+                { name: 'Hormel Foods', sector: 'Consumer Staples', years: 58, description: 'A multinational manufacturer and marketer of consumer-branded food and meat products.'},
+                { name: 'Cincinnati Financial', sector: 'Financials', years: 63, description: 'An insurance company offering property casualty coverage for businesses and individuals.'},
+                { name: 'Consolidated Edison', sector: 'Utilities', years: 50, description: 'One of the largest investor-owned energy companies in the United States, providing steam, gas, and electricity.'}
+            ];
+
+            const kingsGrid = document.getElementById('kings-grid');
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            
+            function renderKings(filter = 'All') {
+                kingsGrid.innerHTML = '';
+                const filteredKings = filter === 'All' ? dividendKingsData : dividendKingsData.filter(king => king.sector === filter);
+                
+                filteredKings.forEach(king => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-gray-50 border border-gray-200 rounded-lg p-5 text-center transition-transform transform hover:scale-105 hover:shadow-xl';
+                    card.innerHTML = `
+                        <h4 class="text-xl font-bold text-[#2D3748]">${king.name}</h4>
+                        <p class="text-sm text-gray-500 mb-2">${king.sector}</p>
+                        <div class="bg-[#C0A062] text-white text-lg font-bold rounded-full py-1 px-3 inline-block my-2">${king.years} yrs</div>
+                        <p class="text-gray-600 mt-2 text-sm">${king.description}</p>
+                    `;
+                    kingsGrid.appendChild(card);
+                });
+            }
+
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    renderKings(btn.dataset.sector);
+                });
+            });
+
+            renderKings();
+
+            let compoundingChart;
+            const yearsSlider = document.getElementById('yearsSlider');
+            const yearsValue = document.getElementById('yearsValue');
+
+            function calculateCompounding(years) {
+                const initialInvestment = 10000;
+                const annualGrowth = 0.08;
+                const dividendYield = 0.05;
+                
+                let withDividends = [initialInvestment];
+                let withoutDividends = [initialInvestment];
+                let labels = [0];
+
+                for (let i = 1; i <= years; i++) {
+                    labels.push(i);
+                    let lastValueWithout = withoutDividends[withoutDividends.length - 1];
+                    withoutDividends.push(lastValueWithout * (1 + annualGrowth));
+
+                    let lastValueWith = withDividends[withDividends.length - 1];
+                    let dividend = lastValueWith * dividendYield;
+                    withDividends.push((lastValueWith + dividend) * (1 + annualGrowth));
+                }
+                return { labels, withDividends, withoutDividends };
+            }
+
+            function updateChart() {
+                const years = parseInt(yearsSlider.value);
+                yearsValue.textContent = years;
+                const data = calculateCompounding(years);
+
+                compoundingChart.data.labels = data.labels;
+                compoundingChart.data.datasets[0].data = data.withoutDividends;
+                compoundingChart.data.datasets[1].data = data.withDividends;
+                compoundingChart.update();
+            }
+            
+            const ctxCompounding = document.getElementById('compoundingChart').getContext('2d');
+            const initialData = calculateCompounding(25);
+            compoundingChart = new Chart(ctxCompounding, {
+                type: 'line',
+                data: {
+                    labels: initialData.labels,
+                    datasets: [
+                        {
+                            label: 'Growth Only',
+                            data: initialData.withoutDividends,
+                            borderColor: '#A0AEC0',
+                            backgroundColor: 'transparent',
+                            tension: 0.1
+                        },
+                        {
+                            label: 'Growth + Reinvested Dividends',
+                            data: initialData.withDividends,
+                            borderColor: '#C0A062',
+                            backgroundColor: 'rgba(192, 160, 98, 0.1)',
+                            fill: true,
+                            tension: 0.1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                }
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Years'
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed.y);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            yearsSlider.addEventListener('input', updateChart);
+            
+            const ctxSector = document.getElementById('sectorChart').getContext('2d');
+            new Chart(ctxSector, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Consumer Staples', 'Industrials', 'Utilities', 'Financials', 'Healthcare', 'Other'],
+                    datasets: [{
+                        label: 'Sector Breakdown',
+                        data: [27, 25, 15, 12, 11, 10],
+                        backgroundColor: [
+                            '#4A5568',
+                            '#718096',
+                            '#A0AEC0',
+                            '#CBD5E0',
+                            '#E2E8F0',
+                            '#F7FAFC'
+                        ],
+                         borderColor: '#FFFFFF',
+                         borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed !== null) {
+                                        label += context.parsed + '%';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
